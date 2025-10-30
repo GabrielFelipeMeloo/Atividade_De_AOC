@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora WebAssembly</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    input {
+      width: 100px;
+      margin: 5px;
+      padding: 8px;
+      font-size: 16px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    p {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calculadora em WebAssembly (C + Emscripten)</h1>
+
+  <input id="a" type="number" placeholder="Número A">
+  <input id="b" type="number" placeholder="Número B">
+  <br>
+  <button onclick="calc('add')">+</button>
+  <button onclick="calc('sub')">-</button>
+  <button onclick="calc('mul')">*</button>
+  <button onclick="calc('divide')">/</button>
+
+  <p>Resultado: <span id="resultado">---</span></p>
+
+  <script>
+    window.Module = {
+      onRuntimeInitialized() {
+        console.log(" WebAssembly carregado e pronto!");
+
+        // Importa as funções do módulo WASM
+        window.add = Module.cwrap('add', 'number', ['number', 'number']);
+        window.sub = Module.cwrap('sub', 'number', ['number', 'number']);
+        window.mul = Module.cwrap('mul', 'number', ['number', 'number']);
+        window.divide = Module.cwrap('divide', 'number', ['number', 'number']);
+      }
+    };
+  </script>
+
+  <script src="calculadora.js"></script>
+
+  <script>
+    function calc(operacao) {
+      const a = parseFloat(document.getElementById('a').value) || 0;
+      const b = parseFloat(document.getElementById('b').value) || 0;
+      let r = 0;
+
+      try {
+        switch (operacao) {
+          case 'add': r = add(a, b); break;
+          case 'sub': r = sub(a, b); break;
+          case 'mul': r = mul(a, b); break;
+          case 'divide':
+            if (b === 0) {
+              alert("Divisão por zero não é permitida!");
+              return;
+            }
+            r = divide(a, b);
+            break;
+        }
+
+        document.getElementById('resultado').innerText = isNaN(r) ? "NaN" : r;
+      } catch (e) {
+        console.error("Erro ao calcular:", e);
+        document.getElementById('resultado').innerText = "Erro!";
+      }
+    }
+  </script>
+</body>
+</html>
