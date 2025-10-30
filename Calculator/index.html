@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Calculadora WebAssembly</title>
+  </head>
+  <body>
+    <h1>Calculadora WebAssembly</h1>
+    <input id="a" type="number" placeholder="A">
+    <input id="b" type="number" placeholder="B">
+    <button onclick="calc('add')">+</button>
+    <button onclick="calc('sub')">-</button>
+    <button onclick="calc('mul')">*</button>
+    <button onclick="calc('divide')">/</button>
+    <p>Resultado: <span id="result"></span></p>
+
+    <script src="calculadora.js"></script>
+    <script>
+      var add, sub, mul, divide;
+
+      // O Emscripten cria o objeto Module automaticamente
+      var Module = {
+        onRuntimeInitialized: function() {
+          add = Module.cwrap('add', 'number', ['number', 'number']);
+          sub = Module.cwrap('sub', 'number', ['number', 'number']);
+          mul = Module.cwrap('mul', 'number', ['number', 'number']);
+          divide = Module.cwrap('divide', 'number', ['number', 'number']);
+        }
+      };
+
+      function calc(op) {
+        const a = Number(document.getElementById('a').value);
+        const b = Number(document.getElementById('b').value);
+        let result = 0;
+        if (op === 'add') result = add(a, b);
+        else if (op === 'sub') result = sub(a, b);
+        else if (op === 'mul') result = mul(a, b);
+        else if (op === 'divide') result = divide(a, b);
+        document.getElementById('result').innerText = result;
+      }
+    </script>
+  </body>
+</html>
